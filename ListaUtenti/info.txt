@@ -1,0 +1,19 @@
+Sviluppare un applicazione che chiede in input un nome e un numero di telefono,
+
+Verrà creata una lista, che dovrà essere salvata in sessione del browser,
+
+in modo da avere il dato savato anche dopo il refresh della pagina.
+
+Inoltre, deve essere presente un campo di ricerca tramite nome Utente, che verrà visualizzato
+
+
+
+
+1) creare modello Classe
+2)
+
+
+
+
+
+

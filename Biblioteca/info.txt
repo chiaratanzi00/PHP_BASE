@@ -1,0 +1,77 @@
+Creare un applicazione formata da
+
+
+    // -header
+    // -footer
+    -function   -> addBook() , printBook(), searchBook()    se proprio tutto funziona -> deleteBook() e editBook()
+    // -index
+    // -Book(classe)
+    // -style.css 
+    // -bootstrap con cdn
+    // -repo su github
+    // -inizializzate con git
+    // -salvataggio sessione in coockies 
+
+    
+
+
+Classe:
+
+Book :  titolo, 
+        autore, 
+        anno,
+        prezzo,
+        numero pagine
+
+
+
+        immagine url stringa
+        immagine da verificare .blob
+        -chart.js -> prezzo-titolo / autore-num pagine
+
+
+
+
+////////////////////////////////////////Libreria e framework
+
+
+Libreria : 
+    
+    React, Bootstrap, Chart.js, json-server ( non ha concetti nuovi, ma solo servizi aggiuntivi)
+
+
+Framework : 
+
+    Angular, Laravel, Tailwind ( utility e concetti nuovi ES. : PARADIGMA MVC ( (MODEL-VIEW-CONTROLLER) ))
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+
+
+//FRONTEND
+vscode -> github -> vercel -> COMPRARE IL DOMINIO VOSTRO ES. SU KELIWEB E 
+                              CAPIRE COME CONFIGURARE IL DOMINIO IN VERCEL 
+                              NELLA CONFIGURAZIONE DEI DNS 
+
+
+
+
+//BACKEND FRONTEND 
+vscode -> github -> database?
+
+
+
+
+// Sviluppo mobile
+
+IOS PLAYSTORE                       Android PLAYSTORE
+ambiente xcode                      ambiente android su pc
+in swift                            JAVA/KOTLIN
+
+
+
+                    cross platform
+                    FLUTTER in DART
+

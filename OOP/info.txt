@@ -1,0 +1,55 @@
+
+---------------------------------------------INFO-------------------------------------------
+
+CLASSE : 
+
+    è UNA MODELLAZIONE DI UN CONCETTO DEL MONDO REALE
+
+    GRAZIE ALLA CLASSE COSTRUISCO 
+
+        OGGETTI CHIAMATI ANCHE "ISTANZE"
+
+        HO LA NECESSITA DI COSTRUTTORE DELLA CLASSE
+
+
+
+OGGETTO : RICHIAMO LA CLASSE PER COSTRUIRE IL NUOVO OGGETTO 
+
+
+
+
+
+--------------------------------------SPECIFICHE INDEX2.PHP----------------------------------
+
+
+Abbiamo una classe genitore chiamata "Forma" con 2 Funzioni : area() e descrizione();
+
+Voglio estendere altre 2 classi dalla classe genitore(forma)
+
+    -Cerchio
+    -Rettangolo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
