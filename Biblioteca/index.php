@@ -1,235 +1,175 @@
 <?php
+require_once 'functions.php';
+session_start();
 
+// Inizializzazione libreria in sessione
+if (!isset($_SESSION['library'])) {
+    $_SESSION['library'] = [];
+}
+$library = &$_SESSION['library'];
 
-    require_once 'functions.php';
+$message = null;
 
-    //parte la sessione
-    session_start();
+// LOGICA AGGIUNTA LIBRO
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])) {
 
-    //inizializzazione della sessione
-    if(!isset($_SESSION['library'])){
-        $_SESSION['library'] = [];
+    $title  = trim($_POST['title'] ?? '');
+    $author = trim($_POST['author'] ?? '');
+    $year   = trim($_POST['year'] ?? '');
+    $price  = trim($_POST['price'] ?? '');
+    $pages  = trim($_POST['pages'] ?? '');
+
+    if ($title && $author) {
+        addBook($library, $title, $author, $year, $price, $pages);
+        $message = "📚 Libro aggiunto con successo!";
+    } else {
+        $message = "⚠️ Inserisci almeno titolo e autore.";
     }
+}
 
-    //dichiaro che 
-    $library = &$_SESSION['library']; // puntatore di riferimento variabile sessione con &
+// LOGICA RICERCA
+$searchTitle = null;
+$searchResult = null;
 
-    //messaggi informativi ( inizializzo a null poi cambia a seconda di cio' che voglio avere come info)
-    $messagge = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])) {
 
+    $searchTitle = trim($_POST['search_title'] ?? '');
 
-    //LOGICA AGGIUNTA LIBRO
-    if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add'])){ //mi sono preso il bottone di add book
-
-        //Salvo in variabili i valori inseriti in input form
-        $title = trim($_POST['title'] ?? ''); //?? valore di dafalt, quindi prendi il titolo oppure vuoto
-        $author = trim($_POST['author'] ?? '');
-        $year = trim($_POST['year'] ?? '');
-        $price = trim($_POST['price'] ?? '');
-        $pages = trim($_POST['pages'] ?? '');
-
-        //aggiungo un libro se ho il titolo e l autore
-        if($title && $author){
-
-            addBook($library, $title, $author, $year, $price, $pages);
-
-            $message = "Libro Aggiunto";
-
-        }else{
-
-            $message = "Inserisci il titolo e un autore";
-        }
-
-
+    if ($searchTitle !== '') {
+        $searchResult = searchBook($library, $searchTitle);
     }
+}
 
+// LOGICA CANCELLAZIONE
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
 
-    //LOGICA DI RICERCA LIBRO
-    //inizializzo il libro da cercare come nullo
-    $searchTitle = null;
-    $searchResult = null;
+    $indexToDelete = (int)$_POST['index'];
+    deleteBook($library, $indexToDelete);
 
-    if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search'])){ //mi sono preso il bottone di search button book
-
-        $searchTitle = trim($_POST['search_title'] ?? ''); // il valore inserito sarà salvato in searchTitle
-
-        if($searchTitle !== ''){ // se ho valori
-
-            $searchResult = searchBook($library, $searchTitle);
-        }
-       
-    }
-
-
-    //LOGICA DI CANCELLAZIONE
-
-    if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])){ //mi sono preso il bottone di search button book
-
-        $indexToDelete = (int)$_POST['index']; // ho preso l id del book da cancellare
-
-       deleteBook($library, $indexToDelete);
-       $message = "Libro cancellato";
-    }
-
-
-
+    $message = "🗑️ Libro eliminato correttamente.";
+}
 ?>
 
-
-
-
-
-
 <!DOCTYPE html>
-<html lang="it"> <!--BUG?! Altrimenti non prende il css personale -->
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioteca</title>
-    
-    <!--importo Bootstrap-->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!--importo style personale-->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    
-    <!--importo header-->
-    <?php include 'header.php' ?>
 
+<?php include 'header.php'; ?>
 
+<div class="container py-4">
 
-    <div class="container py-4">
+    <!-- MESSAGGI DI SISTEMA -->
+    <?php if ($message): ?>
+        <div class="alert alert-info text-center fw-bold"><?= $message ?></div>
+    <?php endif; ?>
 
-        <!--FORM AGGIUNTA LIBRO-->
-        <h3>Aggiungi un libro</h3>
-        <form action="" method="POST" class="row g-3 mb-4">
+    <!-- FORM AGGIUNTA LIBRO -->
+    <h3 class="my-4">Aggiungi un Libro</h3>
 
-            <div class="col-md-4">
+    <form method="POST" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="title" class="form-control" placeholder="Titolo">
+        </div>
 
-                <input type="text" name="title" class="form-control" placeholder="Inserisci Titolo...">
+        <div class="col-md-4">
+            <input type="text" name="author" class="form-control" placeholder="Autore">
+        </div>
 
+        <div class="col-md-4">
+            <input type="text" name="year" class="form-control" placeholder="Anno (es. 2001)">
+        </div>
 
+        <div class="col-md-6">
+            <input type="text" name="price" class="form-control" placeholder="Prezzo">
+        </div>
+
+        <div class="col-md-6">
+            <input type="text" name="pages" class="form-control" placeholder="Numero pagine">
+        </div>
+
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100" type="submit" name="add">Aggiungi</button>
+        </div>
+    </form>
+
+    <!-- FORM DI RICERCA -->
+    <h3 class="my-4">Ricerca Libro</h3>
+
+    <form method="POST" class="row g-3">
+        <div class="col-md-9">
+            <input type="text" name="search_title" class="form-control" placeholder="Titolo da cercare...">
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-secondary w-100" type="submit" name="search">Cerca</button>
+        </div>
+    </form>
+
+    <!-- RISULTATI RICERCA -->
+    <?php if ($searchTitle !== null): ?>
+        <h3 class="mt-5">Risultato Ricerca</h3>
+
+        <?php if ($searchResult): ?>
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h5 class="card-title"><?= $searchResult->title ?></h5>
+                    <p class="card-text">
+                        Autore: <?= $searchResult->author ?><br>
+                        Anno: <?= $searchResult->year ?><br>
+                        Prezzo: <?= $searchResult->price ?> €<br>
+                        Pagine: <?= $searchResult->pages ?>
+                    </p>
+                </div>
             </div>
+        <?php else: ?>
+            <p class="text-danger mt-2">Nessun libro trovato.</p>
+        <?php endif; ?>
+    <?php endif; ?>
 
-            <div class="col-md-4">
+    <!-- ELENCO LIBRI -->
+    <h3 class="my-4">Elenco Libri</h3>
 
-                <input type="text" name="author" class="form-control" placeholder="Inserisci Autore...">
+    <?php if (empty($library)): ?>
 
+        <p class="text-muted">La biblioteca è vuota.</p>
 
-            </div>
+    <?php else: ?>
 
-            <div class="col-md-4">
+        <ul class="list-group mb-5">
+            <?php foreach ($library as $index => $book): ?>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
 
-                <input type="text" name="year" class="form-control" placeholder="Inserisci Anno...">
-
-
-            </div>
-
-            <div class="col-md-6">
-
-                <input type="text" name="price" class="form-control" placeholder="Inserisci Prezzo Libro...">
-
-
-            </div>
-
-            <div class="col-md-6">
-
-                <input type="text" name="pages" class="form-control" placeholder="Inserisci Numero delle pagine...">
-
-
-            </div>
-            
-            <!--Bottone d submit-->
-            <div class="col-md-2 ">
-                <button class="btn btn-primary w-100" type="submit" name="add">Aggiungi</button>
-            </div>
-
-
-        </form>
-
-
-        <!--FORM RICERCA LIBRO-->
-        <h3>Ricerca Libro</h3>
-        <form action="" method="POST">
-
-            <div class="col-md-12">
-                <input type="text" name="search_title" class="form-control" placeholder="Inserisci titolo da cercare">
-            </div>
-
-            <!--Bottone di invio ricerca -->
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-secondary mt-3 w-100" name="search">Cerca</button>
-            </div>
-
-        </form>
-
-
-
-
-        <!--CREO I RISULTATI DELLA RICERCA PER TITOLO-->
-        
-        <?php  if($searchTitle !== null) :  ?> <!-- se sto effettivamente cercando qualcosa -->
-
-            <h3>Risultato Ricerca</h3>
-            <?php if($searchResult) : ?>
-                
-                <div class="card">
-
-                    <div class="card-body d-flex justify-content-between align-items-center">
-
-                        <?= $searchResult->getInfo() ?>
-
+                    <div>
+                        <strong><?= $book->title ?></strong><br>
+                        <small>
+                            Autore: <?= $book->author ?> —
+                            Anno: <?= $book->year ?> —
+                            <?= $book->price ?> € —
+                            <?= $book->pages ?> pagine
+                        </small>
                     </div>
 
-                </div>
-            <?php else: ?>
-                <p>Nessun libro trovato</p>
+                    <form method="POST" onsubmit="return confirm('Eliminare questo libro?')">
+                        <input type="hidden" name="index" value="<?= $index ?>">
+                        <button type="submit" name="delete" class="btn btn-danger btn-sm">Cancella</button>
+                    </form>
+                </li>
+            <?php endforeach; ?>
+        </ul>
 
-            <?php endif; ?>
+    <?php endif; ?>
 
-        <?php endif; ?>
+</div>
 
-
-
-
-        <h3>Elenco Libri</h3>
-        <!--Se la libreria è vuota...-->
-        <?php if(empty($library)): ?>
-            
-            <p>Nessun libro presente</p>
-        
-            <?php else: ?>
-
-                <ul class="list-group mb-4">
-                    <!--Ciclo su tutti i libri -->
-                    <?php  foreach($library as $index => $book) :   ?>
-                    <!--Creo elemento in pagina del libro-->
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <?= $book->getInfo() ?><!--prendo tutte le info con la funzione della classe-->
-                            <!--Form di eliminazione libro-->
-                            <form action="" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare questo libro?')">
-                                <input type="hidden" name="index" value="<?php $index ?>">
-                                <button type="submit" name="delete" class="btn btn-danger">Cancella</button>
-                            </form>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-
-        <?php endif; ?>
-    </div>
-
-    <h3>debug</h3>
-    <pre><?php print_r($_SESSION) ?></pre>
-
-
-
-    <!--importo footer-->
-    <?php include 'footer.php' ?>
-
-
-
+<?php include 'footer.php'; ?>
 
 </body>
 </html>
